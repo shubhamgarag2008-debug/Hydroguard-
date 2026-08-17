@@ -1,781 +1,374 @@
+
+1000012558.jpg
+1000012557.jpg
+1000012556.jpg
+1000012555.jpg
+https://shubhamgarag2008-debug.github.io/Hydroguard-/
+
+🔥 V2 start karte hain. Maine tumhare current index.html ko fresh inspect kiya hai; ye abhi 781-line single-file site hai, jisme dashboard, prediction form, 8 monitoring locations aur rule-based prediction already hai. 
+
+V2 mein main ye changes karunga
+1. 📊 Real-looking Live Dashboard
+
+Water Level
+
+Rainfall
+
+Risk Level
+
+Warning Status
+
+Last Updated
+
+Sensor Status
+
+2. 🗺️ Interactive Monitoring Areas
+Ab Surat/Mumbai etc. sirf cards nahi rahenge. Tap karne par location ka detail panel khulega:
+
+Current water level
+
+Rainfall
+
+Risk
+
+River/coastal type
+
+Sensor status
+
+3. 🟢🟡🔴 Better risk system
+Current simple water >= 6 OR rain >= 120 rule ko improve karenge. 
+
+Note: jab tak actual trained model connect nahi hota, ise clearly Demo Risk Engine rakhenge—not fake AI.
+
+4. 📱 Mobile UI fix
+Tumhare screenshot mein section heading navbar ke peeche partially hide ho rahi thi. V2 mein fixed/sticky header ke according spacing fix karenge.
+
+5. 📈 Water-level trend
+Dashboard mein ek visual trend/history section hoga, jisse website sirf static cards jaisi nahi lagegi.
+
+6. 🚨 Alert panel
+Risk HIGH hone par prominent warning panel:
+HYDROGUARD WARNING → Immediate monitoring required
+
+Architecture
+Sensor / Weather Data → HydroGuard Risk Engine → Dashboard → Location Status → Warning
+
+Baad mein isi architecture mein actual AI model + Arduino sensor data + weather API connect kar sakte hain.
+
+Important: Main abhi tumhare existing code ko blindly replace nahi karunga. Pehle V2 ka complete upgraded index.html bana kar dena better hai, jise tum GitHub mein current file ke place par paste karoge.
+
+
+Hmm
+
+Haan 👍 V2 ke liye current code ka base clear hai. Maine actual index.html source bhi check kar liya hai. 
+
+Ab hum current website ko replace nahi, usi ko upgrade karenge.
+
+V2 ka first upgrade
+Main pehle ye 5 cheezein add karunga:
+
+📊 Live-style dashboard
+
+Water Level
+
+Rainfall
+
+Risk
+
+Warning
+
+Sensor status
+
+Last updated
+
+📍 Clickable monitoring locations
+
+Surat
+
+Mumbai
+
+Kolkata
+
+Chennai
+
+Patna
+
+Varanasi
+
+Guwahati
+
+Ahmedabad
+
+🔴🟡🟢 Dynamic risk dashboard
+
+Prediction result ke saath dashboard status bhi update hoga.
+
+📈 Water-level trend
+
+Recent readings ka visual trend.
+
+📱 Mobile UI fix
+
+Tumhare screenshot mein navbar ke neeche heading cut ho rahi hai; V2 mein section spacing correct karenge.
+
+Important: Current prediction JavaScript threshold-based hai, actual ML/AI model nahi. 
+ V2 mein ise Demo Risk Engine rakhenge, aur baad mein actual AI model connect karenge.
+
+Agle step mein main tumhe complete V2 index.html code dunga, jise tum GitHub ke current file ke place par paste karke website refresh kar sakte ho.
+
+
+Hmm
+
+🔥 HydroGuard V2 ready hai!
+
+Maine tumhare current GitHub code ko base bana kar V2 mein:
+
+📊 upgraded dashboard
+
+📍 clickable monitoring locations
+
+🟢🟡🔴 dynamic risk status
+
+📈 water-level trend
+
+🚨 alert panel
+
+📱 mobile spacing/UI fixes
+
+🔄 dashboard ko prediction result ke saath update
+
+add kar diya hai.
+
+File: Download HydroGuard V2
+
+GitHub par lagane ke liye
+File download karo.
+
+GitHub → Hydroguard- repository kholo.
+
+index.html kholo.
+
+✏️ Edit dabao.
+
+Purana code select all → delete.
+
+V2 file ka code paste karo.
+
+Commit changes.
+
+1–2 minute baad apni GitHub Pages website refresh karo.
+
+⚠️ Important: V2 mein bhi prediction demo/rule-based hai. Actual AI model, live weather aur Arduino sensor connection V3 mein connect karenge. 
+
+
+
+
+HydroGuard_V2_index.html
+HTML
+
+
+No file chosen
+Library
+/
+HydroGuard_V2_index.html
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>HydroGuard | Flood Early Warning System</title>
-
+<title>HydroGuard V2 | Flood Early Warning System</title>
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial,Helvetica,sans-serif;
-}
-
-html{
-  scroll-behavior:smooth;
-}
-
-body{
-  background:#eef7fa;
-  color:#102a43;
-}
-
-header{
-  position:sticky;
-  top:0;
-  z-index:1000;
-  background:#073b5c;
-  color:white;
-  padding:14px 6%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  box-shadow:0 3px 15px rgba(0,0,0,.2);
-}
-
-.logo{
-  font-size:24px;
-  font-weight:bold;
-}
-
-.logo span{
-  color:#39d5e8;
-}
-
-nav{
-  display:flex;
-  gap:25px;
-}
-
-nav a{
-  color:white;
-  text-decoration:none;
-  font-size:15px;
-}
-
-nav a:hover{
-  color:#39d5e8;
-}
-
-.menu{
-  display:none;
-  font-size:26px;
-  cursor:pointer;
-}
-
-.hero{
-  min-height:650px;
-  background:
-  linear-gradient(rgba(3,48,75,.88),rgba(4,71,98,.9)),
-  radial-gradient(circle at 80% 30%,#28b7d5,transparent 35%);
-  color:white;
-  display:flex;
-  align-items:center;
-  padding:60px 7%;
-}
-
-.hero-content{
-  max-width:700px;
-}
-
-.badge{
-  display:inline-block;
-  background:#123f5d;
-  border:1px solid #38d2e5;
-  padding:8px 15px;
-  border-radius:20px;
-  color:#72e8f5;
-  margin-bottom:20px;
-  font-size:13px;
-}
-
-.hero h1{
-  font-size:58px;
-  line-height:1.05;
-  margin-bottom:20px;
-}
-
-.hero h1 span{
-  color:#39d5e8;
-}
-
-.hero p{
-  font-size:18px;
-  line-height:1.7;
-  color:#d5eaf1;
-  margin-bottom:30px;
-}
-
-.buttons{
-  display:flex;
-  gap:15px;
-  flex-wrap:wrap;
-}
-
-.btn{
-  padding:14px 23px;
-  border-radius:8px;
-  text-decoration:none;
-  font-weight:bold;
-  display:inline-block;
-}
-
-.primary{
-  background:#ffc83d;
-  color:#17324d;
-}
-
-.secondary{
-  border:1px solid #9ddce7;
-  color:white;
-}
-
-section{
-  padding:70px 7%;
-}
-
-.section-title{
-  text-align:center;
-  margin-bottom:40px;
-}
-
-.section-title h2{
-  font-size:35px;
-  color:#073b5c;
-}
-
-.section-title p{
-  margin-top:10px;
-  color:#617d8d;
-}
-
-.dashboard{
-  margin-top:-70px;
-  position:relative;
-}
-
-.dashboard-card{
-  background:white;
-  border-radius:18px;
-  padding:25px;
-  box-shadow:0 10px 35px rgba(0,50,80,.15);
-}
-
-.status{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:25px;
-}
-
-.safe{
-  color:#168a52;
-  font-weight:bold;
-}
-
-.live{
-  color:#758b96;
-  font-size:13px;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-}
-
-.stat{
-  padding:22px;
-  background:#f4fafc;
-  border-radius:12px;
-  border:1px solid #dcecf1;
-}
-
-.stat h3{
-  font-size:30px;
-  color:#073b5c;
-  margin:8px 0;
-}
-
-.stat p{
-  color:#718795;
-  font-size:13px;
-}
-
-.features{
-  background:white;
-}
-
-.cards{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:25px;
-}
-
-.card{
-  background:#f7fbfc;
-  padding:28px;
-  border-radius:15px;
-  border:1px solid #dcecf1;
-  transition:.25s;
-}
-
-.card:hover{
-  transform:translateY(-5px);
-  box-shadow:0 10px 25px rgba(0,70,100,.1);
-}
-
-.icon{
-  width:48px;
-  height:48px;
-  border-radius:12px;
-  background:#dff7fa;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:24px;
-  margin-bottom:18px;
-}
-
-.card h3{
-  color:#073b5c;
-  margin-bottom:10px;
-}
-
-.card p{
-  color:#687f8c;
-  line-height:1.6;
-  font-size:14px;
-}
-
-.prediction{
-  background:#eaf6f8;
-}
-
-.prediction-box{
-  max-width:800px;
-  margin:auto;
-  background:white;
-  padding:30px;
-  border-radius:18px;
-  box-shadow:0 8px 25px rgba(0,60,90,.12);
-}
-
-.form-group{
-  margin-bottom:18px;
-}
-
-label{
-  display:block;
-  margin-bottom:7px;
-  font-weight:bold;
-  color:#294b5d;
-}
-
-select,input{
-  width:100%;
-  padding:13px;
-  border:1px solid #c8dfe6;
-  border-radius:8px;
-  font-size:15px;
-}
-
-.predict-btn{
-  width:100%;
-  border:0;
-  padding:14px;
-  background:#087ea4;
-  color:white;
-  border-radius:8px;
-  font-weight:bold;
-  font-size:16px;
-  cursor:pointer;
-}
-
-.result{
-  display:none;
-  margin-top:25px;
-  padding:20px;
-  border-radius:12px;
-  background:#fff5d9;
-  border-left:5px solid #ffc83d;
-}
-
-.districts{
-  background:white;
-}
-
-.district-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:15px;
-}
-
-.district{
-  padding:20px;
-  border-radius:12px;
-  background:#f5fafc;
-  border:1px solid #dcecf1;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.district:hover{
-  background:#e4f7fa;
-  transform:translateY(-3px);
-}
-
-.district strong{
-  display:block;
-  color:#073b5c;
-  margin-bottom:7px;
-}
-
-.district small{
-  color:#718795;
-}
-
-.about{
-  background:#073b5c;
-  color:white;
-}
-
-.about-content{
-  max-width:900px;
-  margin:auto;
-  text-align:center;
-}
-
-.about h2{
-  font-size:36px;
-  margin-bottom:20px;
-}
-
-.about p{
-  line-height:1.8;
-  color:#d7e9ef;
-}
-
-footer{
-  background:#04283e;
-  color:#b8d0d9;
-  text-align:center;
-  padding:25px;
-  font-size:13px;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
+body{background:#eef7fa;color:#102a43}
+header{position:sticky;top:0;z-index:1000;background:#073b5c;color:white;padding:14px 6%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 3px 15px rgba(0,0,0,.2)}
+.logo{font-size:25px;font-weight:bold}.logo span{color:#39d5e8}
+nav{display:flex;gap:25px}nav a{color:white;text-decoration:none;font-size:15px}nav a:hover{color:#39d5e8}
+.menu{display:none;font-size:30px;cursor:pointer}
+.hero{min-height:650px;background:linear-gradient(rgba(3,48,75,.9),rgba(4,71,98,.93)),radial-gradient(circle at 80% 30%,#28b7d5,transparent 35%);color:white;display:flex;align-items:center;padding:60px 7%}
+.hero-content{max-width:720px}.badge{display:inline-block;background:#123f5d;border:1px solid #38d2e5;padding:8px 15px;border-radius:20px;color:#72e8f5;margin-bottom:20px;font-size:13px}
+.hero h1{font-size:58px;line-height:1.05;margin-bottom:20px}.hero h1 span{color:#39d5e8}
+.hero p{font-size:18px;line-height:1.7;color:#d5eaf1;margin-bottom:30px}
+.buttons{display:flex;gap:15px;flex-wrap:wrap}.btn{padding:14px 23px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block}
+.primary{background:#ffc83d;color:#17324d}.secondary{border:1px solid #9ddce7;color:white}
+section{padding:70px 7%}.section-title{text-align:center;margin-bottom:40px}.section-title h2{font-size:35px;color:#073b5c}.section-title p{margin-top:10px;color:#617d8d}
+.dashboard{margin-top:-70px;position:relative}.dashboard-card{background:white;border-radius:18px;padding:25px;box-shadow:0 10px 35px rgba(0,50,80,.15)}
+.status{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:15px}.safe{color:#168a52;font-weight:bold}.live{color:#758b96;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.stat{padding:22px;background:#f4fafc;border-radius:12px;border:1px solid #dcecf1}
+.stat h3{font-size:30px;color:#073b5c;margin:8px 0}.stat p{color:#718795;font-size:13px}
+.features,.districts{background:white}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:25px}
+.card{background:#f7fbfc;padding:28px;border-radius:15px;border:1px solid #dcecf1;transition:.25s}.card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,70,100,.1)}
+.icon{width:48px;height:48px;border-radius:12px;background:#dff7fa;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px}
+.card h3{color:#073b5c;margin-bottom:10px}.card p{color:#687f8c;line-height:1.6;font-size:14px}
+.prediction{background:#eaf6f8}.prediction-box{max-width:800px;margin:auto;background:white;padding:30px;border-radius:18px;box-shadow:0 8px 25px rgba(0,60,90,.12)}
+.form-group{margin-bottom:18px}label{display:block;margin-bottom:7px;font-weight:bold;color:#294b5d}
+select,input{width:100%;padding:13px;border:1px solid #c8dfe6;border-radius:8px;font-size:15px}
+.predict-btn{width:100%;border:0;padding:14px;background:#087ea4;color:white;border-radius:8px;font-weight:bold;font-size:16px;cursor:pointer}
+.result{display:none;margin-top:25px;padding:20px;border-radius:12px;background:#fff5d9;border-left:5px solid #ffc83d}
+.district-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.district{padding:20px;border-radius:12px;background:#f5fafc;border:1px solid #dcecf1;cursor:pointer;transition:.2s}
+.district:hover{background:#e4f7fa;transform:translateY(-3px)}.district strong{display:block;color:#073b5c;margin-bottom:7px}.district small{color:#718795}
+.detail-panel{display:none;margin:28px auto 0;max-width:900px;background:#f4fafc;border:1px solid #dcecf1;border-radius:16px;padding:24px}
+.detail-head{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:18px}.detail-head h3{color:#073b5c;font-size:25px}
+.pill{padding:7px 12px;border-radius:20px;font-size:12px;font-weight:bold;background:#dff5e9;color:#168a52}.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.detail-item{background:white;border-radius:12px;padding:16px}.detail-item span{display:block;color:#718795;font-size:12px}.detail-item strong{display:block;color:#073b5c;font-size:21px;margin-top:5px}
+.monitor{background:#eef7fa}.monitor-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:22px}.panel{background:white;border-radius:18px;padding:24px;box-shadow:0 8px 25px rgba(0,60,90,.08)}
+.panel h3{color:#073b5c;margin-bottom:18px}.trend{height:150px;display:flex;align-items:end;gap:8px;padding:15px 5px;border-bottom:1px solid #dcecf1}
+.bar{flex:1;min-height:18px;background:#39b9d2;border-radius:6px 6px 0 0}.trend-labels{display:flex;justify-content:space-between;color:#718795;font-size:11px;margin-top:8px}
+.alert{padding:15px;border-radius:12px;background:#e9f7ef;color:#168a52;margin-bottom:12px}.alert.warning{background:#fff5d9;color:#9a6a00}.alert.danger{background:#ffe8e8;color:#b42323}
+.about{background:#073b5c;color:white}.about-content{max-width:900px;margin:auto;text-align:center}.about h2{font-size:36px;margin-bottom:20px}.about p{line-height:1.8;color:#d7e9ef}
+footer{background:#04283e;color:#b8d0d9;text-align:center;padding:25px;font-size:13px}
 @media(max-width:800px){
-
-  nav{
-    display:none;
-    position:absolute;
-    top:65px;
-    left:0;
-    width:100%;
-    background:#073b5c;
-    flex-direction:column;
-    padding:20px 7%;
-  }
-
-  nav.active{
-    display:flex;
-  }
-
-  .menu{
-    display:block;
-  }
-
-  .hero{
-    min-height:600px;
-    padding:50px 6%;
-  }
-
-  .hero h1{
-    font-size:43px;
-  }
-
-  .hero p{
-    font-size:16px;
-  }
-
-  .stats{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .cards{
-    grid-template-columns:1fr;
-  }
-
-  .district-grid{
-    grid-template-columns:repeat(2,1fr);
-  }
+nav{display:none;position:absolute;top:65px;left:0;width:100%;background:#073b5c;flex-direction:column;padding:20px 7%}
+nav.active{display:flex}.menu{display:block}.hero{min-height:600px;padding:50px 6%}.hero h1{font-size:43px}.hero p{font-size:16px}
+.stats{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}.district-grid{grid-template-columns:repeat(2,1fr)}
+.monitor-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr 1fr}
 }
-
 @media(max-width:450px){
-
-  .stats{
-    grid-template-columns:1fr;
-  }
-
-  .district-grid{
-    grid-template-columns:1fr;
-  }
-
-  .hero h1{
-    font-size:38px;
-  }
-
-  section{
-    padding:55px 5%;
-  }
+.stats{grid-template-columns:1fr}.district-grid{grid-template-columns:1fr}.hero h1{font-size:38px}section{padding:55px 5%}
+.status,.detail-head{align-items:flex-start;flex-direction:column}.detail-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
-
 <body>
 
 <header>
-  <div class="logo">🌊 Hydro<span>Guard</span></div>
-
-  <div class="menu" onclick="toggleMenu()">☰</div>
-
-  <nav id="nav">
-    <a href="#home">Home</a>
-    <a href="#dashboard">Dashboard</a>
-    <a href="#prediction">Prediction</a>
-    <a href="#districts">Districts</a>
-    <a href="#about">About</a>
-  </nav>
+<div class="logo">🌊 Hydro<span>Guard</span></div>
+<div class="menu" onclick="toggleMenu()">☰</div>
+<nav id="nav">
+<a href="#home">Home</a><a href="#dashboard">Dashboard</a><a href="#prediction">Prediction</a><a href="#districts">Monitoring</a><a href="#about">About</a>
+</nav>
 </header>
 
 <section class="hero" id="home">
-
-  <div class="hero-content">
-
-    <div class="badge">
-      ● FLOOD INTELLIGENCE FOR EVERY COMMUNITY
-    </div>
-
-    <h1>
-      Smart <span>flood</span><br>
-      early warning<br>
-      system.
-    </h1>
-
-    <p>
-      HydroGuard is an intelligent flood monitoring and
-      early-warning platform designed to monitor water levels,
-      weather conditions and flood risk to help communities
-      prepare before disaster strikes.
-    </p>
-
-    <div class="buttons">
-      <a href="#dashboard" class="btn primary">
-        View Dashboard →
-      </a>
-
-      <a href="#prediction" class="btn secondary">
-        Flood Prediction
-      </a>
-    </div>
-
-  </div>
-
+<div class="hero-content">
+<div class="badge">● FLOOD INTELLIGENCE FOR EVERY COMMUNITY</div>
+<h1>Smart <span>flood</span><br>early warning<br>system.</h1>
+<p>HydroGuard is an intelligent flood monitoring and early-warning platform designed to combine water-level observations, weather information and risk analysis.</p>
+<div class="buttons"><a href="#dashboard" class="btn primary">View Dashboard →</a><a href="#prediction" class="btn secondary">Flood Prediction</a></div>
+</div>
 </section>
 
 <section class="dashboard" id="dashboard">
-
-  <div class="dashboard-card">
-
-    <div class="status">
-
-      <div>
-        <span class="safe">● CURRENT STATUS: SAFE</span>
-      </div>
-
-      <div class="live">
-        DEMO DATA • HYDROGUARD
-      </div>
-
-    </div>
-
-    <div class="stats">
-
-      <div class="stat">
-        <p>Water Level</p>
-        <h3>2.4 m</h3>
-        <p>Normal condition</p>
-      </div>
-
-      <div class="stat">
-        <p>Rainfall</p>
-        <h3>12 mm</h3>
-        <p>Last 24 hours</p>
-      </div>
-
-      <div class="stat">
-        <p>Risk Level</p>
-        <h3>LOW</h3>
-        <p>Current assessment</p>
-      </div>
-
-      <div class="stat">
-        <p>Warning Status</p>
-        <h3>SAFE</h3>
-        <p>No alert required</p>
-      </div>
-
-    </div>
-
-  </div>
-
+<div class="dashboard-card">
+<div class="status"><div><span id="statusText" class="safe">● CURRENT STATUS: SAFE</span></div><div class="live">DEMO DATA • HYDROGUARD V2 • <span id="updated">JUST NOW</span></div></div>
+<div class="stats">
+<div class="stat"><p>Water Level</p><h3 id="dashWater">2.4 m</h3><p>Current reading</p></div>
+<div class="stat"><p>Rainfall</p><h3 id="dashRain">12 mm</h3><p>Last 24 hours</p></div>
+<div class="stat"><p>Risk Level</p><h3 id="dashRisk">LOW</h3><p id="dashRiskSub">Current assessment</p></div>
+<div class="stat"><p>Warning Status</p><h3 id="dashWarning">SAFE</h3><p id="sensorStatus">Sensor: DEMO</p></div>
+</div>
+</div>
 </section>
 
 <section class="features">
+<div class="section-title"><h2>A clearer picture of what the water is doing.</h2><p>HydroGuard V2 combines monitoring, weather information, prediction and location-based assessment.</p></div>
+<div class="cards">
+<div class="card"><div class="icon">💧</div><h3>Water Level Monitoring</h3><p>Monitor water levels from sensors installed near vulnerable rivers, drains and coastal locations.</p></div>
+<div class="card"><div class="icon">🌧️</div><h3>Weather Monitoring</h3><p>Rainfall and weather conditions can be combined with water-level information for better assessment.</p></div>
+<div class="card"><div class="icon">🤖</div><h3>Prediction Engine</h3><p>V2 includes a transparent demonstration risk engine. A trained ML model can be connected later.</p></div>
+</div>
+</section>
 
-  <div class="section-title">
-
-    <h2>A clearer picture of what the water is doing.</h2>
-
-    <p>
-      HydroGuard combines monitoring, weather information
-      and prediction technology.
-    </p>
-
-  </div>
-
-  <div class="cards">
-
-    <div class="card">
-      <div class="icon">💧</div>
-      <h3>Water Level Monitoring</h3>
-      <p>
-        Monitor water levels from sensors installed near
-        vulnerable rivers, drains and coastal locations.
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="icon">🌧️</div>
-      <h3>Weather Monitoring</h3>
-      <p>
-        Rainfall and weather conditions can be combined
-        with water-level information for better assessment.
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="icon">🤖</div>
-      <h3>AI Flood Prediction</h3>
-      <p>
-        AI-based analysis can estimate flood risk using
-        historical and current environmental data.
-      </p>
-    </div>
-
-  </div>
-
+<section class="monitor">
+<div class="section-title"><h2>Monitoring Overview</h2><p>Demonstration trend and system alerts.</p></div>
+<div class="monitor-grid">
+<div class="panel"><h3>Water-Level Trend</h3><div class="trend" id="trend"></div><div class="trend-labels"><span>Earlier</span><span>Latest</span></div></div>
+<div class="panel"><h3>System Alerts</h3><div class="alert" id="alertBox">🟢 System operating in demonstration mode.</div><div class="alert warning">🟡 Weather and sensor APIs are not connected yet.</div><div class="alert">📡 Sensor status: DEMO / OFFLINE INTEGRATION</div></div>
+</div>
 </section>
 
 <section class="prediction" id="prediction">
-
-  <div class="section-title">
-
-    <h2>Flood Risk Prediction</h2>
-
-    <p>
-      Enter sample conditions to generate a demonstration
-      risk assessment.
-    </p>
-
-  </div>
-
-  <div class="prediction-box">
-
-    <div class="form-group">
-      <label>Water Level (metres)</label>
-      <input
-        id="water"
-        type="number"
-        step="0.1"
-        placeholder="Example: 4.5"
-      >
-    </div>
-
-    <div class="form-group">
-      <label>Rainfall (mm)</label>
-      <input
-        id="rain"
-        type="number"
-        placeholder="Example: 80"
-      >
-    </div>
-
-    <div class="form-group">
-
-      <label>Location Type</label>
-
-      <select id="location">
-        <option>River Area</option>
-        <option>Coastal Area</option>
-        <option>Urban Area</option>
-        <option>Low Lying Area</option>
-      </select>
-
-    </div>
-
-    <button class="predict-btn" onclick="predictFlood()">
-      🔍 Analyse Flood Risk
-    </button>
-
-    <div class="result" id="result"></div>
-
-  </div>
-
+<div class="section-title"><h2>Flood Risk Prediction</h2><p>Enter sample conditions to generate a demonstration risk assessment.</p></div>
+<div class="prediction-box">
+<div class="form-group"><label>Water Level (metres)</label><input id="water" type="number" step="0.1" min="0" placeholder="Example: 4.5"></div>
+<div class="form-group"><label>Rainfall (mm)</label><input id="rain" type="number" min="0" placeholder="Example: 80"></div>
+<div class="form-group"><label>Location Type</label><select id="location"><option>River Area</option><option>Coastal Area</option><option>Urban Area</option><option>Low Lying Area</option></select></div>
+<button class="predict-btn" onclick="predictFlood()">🔍 Analyse Flood Risk</button>
+<div class="result" id="result"></div>
+</div>
 </section>
 
 <section class="districts" id="districts">
-
-  <div class="section-title">
-
-    <h2>Monitoring Areas</h2>
-
-    <p>
-      Example locations that can be connected to HydroGuard.
-    </p>
-
-  </div>
-
-  <div class="district-grid">
-
-    <div class="district">
-      <strong>Surat</strong>
-      <small>Gujarat • Coastal/River</small>
-    </div>
-
-    <div class="district">
-      <strong>Mumbai</strong>
-      <small>Maharashtra • Coastal</small>
-    </div>
-
-    <div class="district">
-      <strong>Kolkata</strong>
-      <small>West Bengal • River/Coastal</small>
-    </div>
-
-    <div class="district">
-      <strong>Chennai</strong>
-      <small>Tamil Nadu • Coastal</small>
-    </div>
-
-    <div class="district">
-      <strong>Patna</strong>
-      <small>Bihar • River</small>
-    </div>
-
-    <div class="district">
-      <strong>Varanasi</strong>
-      <small>Uttar Pradesh • Ganga</small>
-    </div>
-
-    <div class="district">
-      <strong>Guwahati</strong>
-      <small>Assam • Brahmaputra</small>
-    </div>
-
-    <div class="district">
-      <strong>Ahmedabad</strong>
-      <small>Gujarat • Urban/river</small>
-    </div>
-
-  </div>
-
+<div class="section-title"><h2>Monitoring Areas</h2><p>Tap a location to view its demonstration monitoring status.</p></div>
+<div class="district-grid">
+<div class="district" onclick="showDistrict('Surat','Gujarat','Coastal / River','3.2 m','24 mm','MODERATE')"><strong>Surat</strong><small>Gujarat • Coastal/River</small></div>
+<div class="district" onclick="showDistrict('Mumbai','Maharashtra','Coastal','2.8 m','31 mm','MODERATE')"><strong>Mumbai</strong><small>Maharashtra • Coastal</small></div>
+<div class="district" onclick="showDistrict('Kolkata','West Bengal','River / Coastal','3.7 m','48 mm','MODERATE')"><strong>Kolkata</strong><small>West Bengal • River/Coastal</small></div>
+<div class="district" onclick="showDistrict('Chennai','Tamil Nadu','Coastal','2.1 m','18 mm','LOW')"><strong>Chennai</strong><small>Tamil Nadu • Coastal</small></div>
+<div class="district" onclick="showDistrict('Patna','Bihar','River','4.6 m','52 mm','HIGH')"><strong>Patna</strong><small>Bihar • River</small></div>
+<div class="district" onclick="showDistrict('Varanasi','Uttar Pradesh','Ganga','3.9 m','27 mm','MODERATE')"><strong>Varanasi</strong><small>Uttar Pradesh • Ganga</small></div>
+<div class="district" onclick="showDistrict('Guwahati','Assam','Brahmaputra','4.1 m','64 mm','HIGH')"><strong>Guwahati</strong><small>Assam • Brahmaputra</small></div>
+<div class="district" onclick="showDistrict('Ahmedabad','Gujarat','Urban / River','2.5 m','15 mm','LOW')"><strong>Ahmedabad</strong><small>Gujarat • Urban/river</small></div>
+</div>
+<div class="detail-panel" id="detailPanel">
+<div class="detail-head"><h3 id="detailName">Location</h3><span class="pill" id="detailRisk">LOW</span></div>
+<div class="detail-grid">
+<div class="detail-item"><span>State</span><strong id="detailState">—</strong></div>
+<div class="detail-item"><span>Area Type</span><strong id="detailType">—</strong></div>
+<div class="detail-item"><span>Water Level</span><strong id="detailWater">—</strong></div>
+<div class="detail-item"><span>Rainfall</span><strong id="detailRain">—</strong></div>
+<div class="detail-item"><span>Sensor</span><strong>DEMO</strong></div>
+<div class="detail-item"><span>Data Status</span><strong>Demo</strong></div>
+</div>
+</div>
 </section>
 
-<section class="about" id="about">
-
-  <div class="about-content">
-
-    <h2>About HydroGuard</h2>
-
-    <p>
-      HydroGuard is a student-developed concept for an
-      intelligent flood early-warning system. The system
-      combines water-level monitoring, environmental data,
-      risk analysis and warning mechanisms to help people
-      receive information before flooding becomes dangerous.
-    </p>
-
-  </div>
-
-</section>
-
-<footer>
-
-  © 2026 HydroGuard • Intelligent Flood Early Warning System
-
-</footer>
+<section class="about" id="about"><div class="about-content"><h2>About HydroGuard</h2><p>HydroGuard is a student-developed concept for an intelligent flood early-warning system. The platform combines water-level monitoring, environmental data, risk analysis and warning mechanisms to help communities receive information before flooding becomes dangerous.</p></div></section>
+<footer>© 2026 HydroGuard • Intelligent Flood Early Warning System • V2 Demonstration</footer>
 
 <script>
+function toggleMenu(){document.getElementById("nav").classList.toggle("active")}
+document.querySelectorAll("#nav a").forEach(a=>a.addEventListener("click",()=>document.getElementById("nav").classList.remove("active")));
 
-function toggleMenu(){
-
-  document.getElementById("nav").classList.toggle("active");
-
+function updateDashboard(water,rain,risk){
+document.getElementById("dashWater").textContent=water.toFixed(1)+" m";
+document.getElementById("dashRain").textContent=rain.toFixed(0)+" mm";
+document.getElementById("dashRisk").textContent=risk;
+document.getElementById("dashWarning").textContent=risk==="HIGH"?"ALERT":risk==="MODERATE"?"WATCH":"SAFE";
+document.getElementById("dashRiskSub").textContent=risk==="HIGH"?"High-risk demonstration":"Current assessment";
+document.getElementById("statusText").textContent=(risk==="HIGH"?"● CURRENT STATUS: HIGH RISK":risk==="MODERATE"?"● CURRENT STATUS: WATCH":"● CURRENT STATUS: SAFE");
+document.getElementById("statusText").className=risk==="HIGH"?"safe dangerText":risk==="MODERATE"?"safe warningText":"safe";
+document.getElementById("sensorStatus").textContent="Sensor: DEMO";
+document.getElementById("updated").textContent="JUST NOW";
 }
 
 function predictFlood(){
-
-  const water =
-    parseFloat(document.getElementById("water").value) || 0;
-
-  const rain =
-    parseFloat(document.getElementById("rain").value) || 0;
-
-  const result =
-    document.getElementById("result");
-
-  let risk;
-  let message;
-
-  if(water >= 6 || rain >= 120){
-
-    risk = "🔴 HIGH FLOOD RISK";
-
-    message =
-      "Warning: Conditions indicate a high-risk situation. Immediate monitoring and local emergency preparedness are recommended.";
-
-  }
-
-  else if(water >= 4 || rain >= 60){
-
-    risk = "🟡 MODERATE FLOOD RISK";
-
-    message =
-      "Caution: Conditions are becoming concerning. Continue monitoring water levels and rainfall.";
-
-  }
-
-  else{
-
-    risk = "🟢 LOW FLOOD RISK";
-
-    message =
-      "Current demo conditions indicate a relatively low flood risk.";
-
-  }
-
-  result.style.display = "block";
-
-  result.innerHTML =
-    "<strong>" + risk + "</strong><br><br>" + message;
-
+const water=parseFloat(document.getElementById("water").value);
+const rain=parseFloat(document.getElementById("rain").value);
+const result=document.getElementById("result");
+if(isNaN(water)||isNaN(rain)||water<0||rain<0){result.style.display="block";result.innerHTML="<strong>⚠️ ENTER VALID VALUES</strong><br><br>Please enter non-negative water level and rainfall values.";return}
+let risk,message;
+if(water>=6||rain>=120){risk="HIGH";message="Conditions indicate a high-risk demonstration scenario. Increase monitoring and follow official local warnings."}
+else if(water>=4||rain>=60){risk="MODERATE";message="Conditions are becoming concerning. Continue monitoring water level and rainfall."}
+else{risk="LOW";message="Current demonstration conditions indicate a relatively low flood risk."}
+result.style.display="block";
+result.innerHTML="<strong>"+(risk==="HIGH"?"🔴 HIGH FLOOD RISK":risk==="MODERATE"?"🟡 MODERATE FLOOD RISK":"🟢 LOW FLOOD RISK")+"</strong><br><br>"+message;
+updateDashboard(water,rain,risk);
 }
 
-</script>
+function showDistrict(name,state,type,water,rain,risk){
+document.getElementById("detailPanel").style.display="block";
+document.getElementById("detailName").textContent=name;
+document.getElementById("detailState").textContent=state;
+document.getElementById("detailType").textContent=type;
+document.getElementById("detailWater").textContent=water;
+document.getElementById("detailRain").textContent=rain;
+document.getElementById("detailRisk").textContent=risk;
+document.getElementById("detailRisk").style.background=risk==="HIGH"?"#ffe8e8":risk==="MODERATE"?"#fff5d9":"#dff5e9";
+document.getElementById("detailRisk").style.color=risk==="HIGH"?"#b42323":risk==="MODERATE"?"#9a6a00":"#168a52";
+document.getElementById("detailPanel").scrollIntoView({behavior:"smooth",block:"center"});
+}
 
+function makeTrend(){
+const values=[35,42,38,50,47,60,55,68,64,72,70,78];
+const box=document.getElementById("trend");
+values.forEach(v=>{const b=document.createElement("div");b.className="bar";b.style.height=v+"%";box.appendChild(b)});
+}
+makeTrend();
+</script>
 </body>
 </html>

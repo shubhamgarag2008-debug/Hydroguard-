@@ -2,166 +2,271 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HydroGuard V3 | India Flood Intelligence</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HydroGuard V3 — India Flood Monitoring</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <style>
-*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:72px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:70px}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef7fa;color:#12384d}
-header{position:sticky;top:0;z-index:100;background:#073b5c;color:#fff;padding:13px 6%;display:flex;align-items:center;justify-content:space-between;box-shadow:0 3px 14px #00364a33}
-.logo{font-size:24px;font-weight:800}.logo span{color:#42d9e8}
-nav{display:flex;gap:22px}nav a{color:#fff;text-decoration:none;font-size:14px;font-weight:700}.menu{display:none;font-size:27px}
-.hero{padding:70px 7%;min-height:470px;display:flex;align-items:center;color:#fff;background:linear-gradient(120deg,#043451,#08788f)}
-.hero>div{max-width:780px}.badge{display:inline-block;padding:8px 14px;border:1px solid #6be3eb;border-radius:20px;background:#0a4960;font-size:12px;margin-bottom:18px}
-h1{font-size:54px;line-height:1.04;margin:0 0 18px}h1 span{color:#42d9e8}.hero p{font-size:17px;line-height:1.7;color:#d9edf2}
-.btn{border:0;border-radius:8px;padding:13px 18px;font-weight:700;cursor:pointer}.primary{background:#ffc83d;color:#15384e}
-section{padding:58px 7%}.title{text-align:center;margin-bottom:30px}.title h2{font-size:33px;color:#073b5c;margin:0 0 8px}.title p{color:#6d8590}
+header{position:sticky;top:0;z-index:99;background:#073b5c;color:#fff;padding:13px 6%;display:flex;align-items:center;justify-content:space-between;box-shadow:0 3px 15px #00364a33}
+.logo{font-size:24px;font-weight:800}.logo span{color:#42d9e8}nav{display:flex;gap:22px}nav a{color:#fff;text-decoration:none;font-size:14px;font-weight:700}.menu{display:none;font-size:28px}
+.hero{padding:65px 7%;min-height:480px;display:flex;align-items:center;color:white;background:linear-gradient(120deg,#043451,#08748b)}
+.hero>div{max-width:760px}.badge{display:inline-block;padding:8px 13px;border:1px solid #70e6ed;border-radius:20px;background:#0b4a61;font-size:12px;margin-bottom:18px}
+h1{font-size:53px;line-height:1.04;margin:0 0 18px}h1 span{color:#42d9e8}.hero p{font-size:17px;line-height:1.7;color:#d9edf2}
+.btn{border:0;border-radius:8px;padding:13px 18px;font-weight:700;cursor:pointer}.primary{background:#ffc83d;color:#16384d}.secondary{background:#ffffff12;color:#fff;border:1px solid #bdebef}
+section{padding:60px 7%}.title{text-align:center;margin-bottom:30px}.title h2{color:#073b5c;font-size:33px;margin:0 0 8px}.title p{color:#6b838e}
 .box{background:#fff;border-radius:17px;padding:23px;box-shadow:0 8px 28px #003d5a18}
-.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.stat{background:#f5fafc;border:1px solid #dbecef;border-radius:11px;padding:15px}.stat small{color:#6f8792}.stat strong{display:block;font-size:22px;color:#073b5c;margin:7px 0}
-.note{margin-top:14px;padding:11px;border-radius:8px;background:#edf8fb;color:#607b87;font-size:12px}
-.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:6px}.field select,.search input,.predict input,.predict select{width:100%;padding:13px;border:1px solid #c7dfe6;border-radius:8px;background:#fff;font-size:14px}
-.search{margin:15px 0}.location-status{padding:11px;border-radius:8px;background:#edf8fb;color:#3d6879;font-size:13px;margin-bottom:18px}
-.location-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.location-head h3{margin:0;color:#073b5c;font-size:25px}.location-head small{color:#718892}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:18px}.mini{padding:16px;background:#f5fafc;border:1px solid #dcecf1;border-radius:11px}.mini span{display:block;color:#708792;font-size:12px}.mini b{display:block;color:#073b5c;font-size:20px;margin-top:6px}
-.risk{font-weight:800}.safe{color:#168a52}.watch{color:#9a6a00}.danger{color:#b42323}
-.live{background:#eaf6f8}.live .box{max-width:900px;margin:auto}.live-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}.live-card{padding:17px;border-radius:11px;background:#f5fafc;border:1px solid #dcecf1}.live-card b{font-size:24px;color:#073b5c;display:block;margin:6px 0}
-.predict{max-width:800px;margin:auto}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.predict .field{margin-bottom:15px}.action{width:100%;padding:14px;border:0;border-radius:8px;background:#087ea4;color:#fff;font-size:16px;font-weight:700;cursor:pointer}.result{display:none;margin-top:15px;padding:17px;border-radius:10px}.green{background:#e8f7ef;color:#168a52}.yellow{background:#fff5d9;color:#9a6a00}.red{background:#ffe8e8;color:#b42323}
-.chart{height:190px;background:#f5fafc;border-radius:12px;padding:10px;display:flex;align-items:end;gap:7px}.bar{flex:1;background:#35b7d0;border-radius:5px 5px 0 0;min-height:12px}
-.about{background:#073b5c;color:#fff;text-align:center}.about h2{font-size:32px}.about p{max-width:900px;margin:auto;line-height:1.8;color:#d6e8ee}footer{background:#04283e;color:#b5ced7;text-align:center;padding:22px;font-size:12px}
+.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:1000px;margin:auto}.controls label{font-weight:700;font-size:13px;color:#345466}.controls select{width:100%;margin-top:6px;padding:13px;border:1px solid #c8dfe6;border-radius:8px;background:#fff}
+.search{max-width:1000px;margin:16px auto}.search input{width:100%;padding:13px;border:1px solid #c8dfe6;border-radius:8px}
+.statusbar{max-width:1000px;margin:18px auto;padding:12px;border-radius:9px;background:#e8f7ef;color:#168a52;font-size:13px}
+.dashboard{margin-top:-45px;position:relative}.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.stat{background:#f5fafc;border:1px solid #dbecef;border-radius:11px;padding:15px}.stat small{color:#6f8792}.stat strong{display:block;font-size:22px;color:#073b5c;margin:7px 0}.note{font-size:12px;color:#647d88;margin-top:14px;padding:10px;background:#edf8fb;border-radius:8px}
+.location-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.location-head h3{font-size:25px;color:#073b5c;margin:0}.risk{font-weight:800}.safe{color:#168a52}.watch{color:#9a6a00}.danger{color:#b42323}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:18px}.mini{background:#f5fafc;border-radius:11px;padding:16px;border:1px solid #dcecf1}.mini span{display:block;color:#718792;font-size:12px}.mini b{display:block;font-size:21px;color:#073b5c;margin-top:6px}
+.pred{background:#eaf6f8}.form{max-width:780px;margin:auto}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{margin-bottom:15px}.field label{display:block;font-weight:700;margin-bottom:6px}.field input,.field select{width:100%;padding:13px;border:1px solid #c8dfe6;border-radius:8px}
+.result{display:none;margin-top:15px;padding:17px;border-radius:10px}.green{background:#e8f7ef;color:#168a52}.yellow{background:#fff5d9;color:#9a6a00}.red{background:#ffe8e8;color:#b42323}
+.trend{height:190px;display:flex;align-items:end;gap:7px;padding:10px;background:#f5fafc;border-radius:12px}.bar{flex:1;background:#35b7d0;border-radius:5px 5px 0 0;min-height:12px}
+.about{background:#073b5c;color:#fff;text-align:center}.about h2{font-size:32px}.about p{max-width:900px;margin:auto;line-height:1.8;color:#d5e8ee}footer{background:#04283e;color:#b5ced7;text-align:center;padding:22px;font-size:12px}
+
+/* Map Section Styles */
+#map { width: 100%; height: 450px; border-radius: 12px; margin-top: 20px; z-index: 1; }
+.map-legend { display: flex; gap: 15px; justify-content: center; margin-top: 10px; font-size: 13px; font-weight: 700; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.color-box { width: 14px; height: 14px; border-radius: 3px; }
+
 @media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr 1fr}nav{display:none;position:absolute;top:60px;left:0;width:100%;background:#073b5c;flex-direction:column;padding:18px 7%}.menu{display:block}nav.active{display:flex}}
-@media(max-width:520px){h1{font-size:39px}section{padding:50px 5%}.stats,.grid,.controls,.row,.live-row{grid-template-columns:1fr}.location-head{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){h1{font-size:39px}section{padding:50px 5%}.stats,.grid,.controls,.row{grid-template-columns:1fr}.location-head{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
-<header><div class="logo">🌊 Hydro<span>Guard</span></div><div class="menu" onclick="document.getElementById('nav').classList.toggle('active')">☰</div>
-<nav id="nav"><a href="#home">Home</a><a href="#dashboard">Dashboard</a><a href="#location">India Map Data</a><a href="#prediction">Prediction</a><a href="#about">About</a></nav></header>
+<header><div class="logo">🌊 Hydro<span>Guard</span></div><div class="menu" onclick="toggleMenu()">☰</div>
+<nav id="nav"><a href="#home">Home</a><a href="#dashboard">Dashboard</a><a href="#location">Location & Map</a><a href="#prediction">Prediction</a><a href="#about">About</a></nav></header>
 
 <section class="hero" id="home"><div>
-<div class="badge">● HYDROGUARD V3 • INDIA-WIDE LOCATION MONITORING</div>
-<h1>Monitor <span>every district</span> and sub-district.</h1>
-<p>Choose any State/UT → District → Sub-District/Taluka. HydroGuard loads the administrative location from an LGD-derived directory and then tries to retrieve current weather for that exact place. Flood and water-level values are clearly marked as estimated until real sensors are connected.</p>
-<button class="btn primary" onclick="document.getElementById('location').scrollIntoView()">Choose Location →</button>
+<div class="badge">● HYDROGUARD V3 • INDIA-WIDE LOCATION & MAP SYSTEM</div>
+<h1>Flood monitoring for <span>every location.</span></h1>
+<p>Select a State, District and Sub-District/Taluka or view the interactive map. HydroGuard generates a live color-coded flood risk profile based on local demonstration profiles.</p>
+<a class="btn primary" href="#location">Select Location →</a>
 </div></section>
 
-<section id="dashboard"><div class="box">
-<div class="location-head"><div><h3>Live Monitoring Dashboard</h3><small id="dashPath">Select a location below</small></div><div id="dashRisk" class="risk safe">● LOW RISK</div></div>
+<section class="dashboard" id="dashboard"><div class="box">
+<div class="location-head"><div><h3>HydroGuard Dashboard</h3><small id="dashPath">India → Gujarat → Surat → Choryasi</small></div><div id="dashRisk" class="risk safe">● LOW RISK</div></div>
 <div class="stats" style="margin-top:18px">
-<div class="stat"><small>Temperature</small><strong id="dTemp">--</strong><small id="dTempTag">Waiting</small></div>
-<div class="stat"><small>Rainfall</small><strong id="dRain">--</strong><small id="dRainTag">Current precipitation</small></div>
-<div class="stat"><small>Wind</small><strong id="dWind">--</strong><small>Current</small></div>
-<div class="stat"><small>Water Level</small><strong id="dWater">--</strong><small>Estimated until sensor</small></div>
-<div class="stat"><small>Risk Score</small><strong id="dScore">--</strong><small>Demo engine</small></div>
-<div class="stat"><small>Status</small><strong id="dStatus">WAITING</strong><small id="updated">--</small></div>
+<div class="stat"><small>Temperature</small><strong id="dTemp">31°C</strong><small>Estimated</small></div>
+<div class="stat"><small>Rainfall</small><strong id="dRain">18 mm</strong><small>Estimated</small></div>
+<div class="stat"><small>Wind Speed</small><strong id="dWind">14 km/h</strong><small>Estimated</small></div>
+<div class="stat"><small>Water Level</small><strong id="dWater">2.8 m</strong><small>Estimated</small></div>
+<div class="stat"><small>Risk Score</small><strong id="dScore">28/100</strong><small>Demo engine</small></div>
+<div class="stat"><small>Status</small><strong id="dStatus">SAFE</strong><small id="updated">Just now</small></div>
 </div>
-<div class="note">🟢 Weather = live when the weather service responds. 🟡 Water level/risk = HydroGuard estimate until verified sensor data is connected. If live weather fails, the dashboard uses a clearly labelled regional fallback instead of showing “Data unavailable”.</div>
+<div class="note">🟡 DEMO / ESTIMATED DATA — this version intentionally keeps every location populated. Replace these estimates with verified weather/sensor feeds before real-world emergency use.</div>
 </div></section>
 
-<section id="location"><div class="title"><h2>India Location Explorer</h2><p>Complete hierarchy source: LGD-derived State → District → Sub-District/Taluka directory.</p></div>
+<section id="location"><div class="title"><h2>Choose Any Location & Interactive Map</h2><p>State → District → Sub-District / Taluka</p></div>
 <div class="box">
 <div class="controls">
-<div class="field"><label>State / UT</label><select id="state"></select></div>
-<div class="field"><label>District</label><select id="district"></select></div>
-<div class="field"><label>Sub-District / Taluka</label><select id="subdistrict"></select></div>
+<div><label>State / UT</label><select id="state"></select></div>
+<div><label>District</label><select id="district"></select></div>
+<div><label>Sub-District / Taluka</label><select id="subdistrict"></select></div>
 </div>
-<div class="search"><input id="search" placeholder="Search taluka / tehsil / mandal..." oninput="filterSubs()"></div>
-<div id="directoryStatus" class="location-status">Loading the India administrative directory…</div>
-<div class="location-head"><div><h3 id="locName">Select a location</h3><small id="locPath">—</small></div><div id="locRisk" class="risk safe">● LOW RISK</div></div>
+<div class="search"><input id="search" placeholder="Search a sub-district / taluka..." oninput="filterSubdistricts()"></div>
+<div id="loadStatus" class="statusbar">Loading India location directory…</div>
+
+<h3>🗺️ Geographical & Safety Status Map</h3>
+<div id="map"></div>
+<div class="map-legend">
+  <div class="legend-item"><div class="color-box" style="background:#168a52;"></div> Safe (Low Risk)</div>
+  <div class="legend-item"><div class="color-box" style="background:#9a6a00;"></div> Watch (Moderate Risk)</div>
+  <div class="legend-item"><div class="color-box" style="background:#b42323;"></div> Danger (High Risk)</div>
+</div>
+
+<div class="location-head" style="margin-top:22px"><div><h3 id="locName">Select a location</h3><small id="locPath">—</small></div><div id="locRisk" class="risk safe">● LOW RISK</div></div>
 <div class="grid">
-<div class="mini"><span>🌡️ Temperature</span><b id="iTemp">--</b></div><div class="mini"><span>🌧️ Rainfall</span><b id="iRain">--</b></div>
-<div class="mini"><span>💨 Wind</span><b id="iWind">--</b></div><div class="mini"><span>💧 Water Level</span><b id="iWater">--</b></div>
-<div class="mini"><span>☁️ Weather</span><b id="iWeather">--</b></div><div class="mini"><span>📊 Risk Score</span><b id="iScore">--</b></div>
-<div class="mini"><span>📡 Sensor</span><b>NOT CONNECTED</b></div><div class="mini"><span>🕐 Updated</span><b id="iUpdated">--</b></div>
+<div class="mini"><span>🌡️ Temperature</span><b id="iTemp">--</b></div>
+<div class="mini"><span>🌧️ Rainfall</span><b id="iRain">--</b></div>
+<div class="mini"><span>💨 Wind Speed</span><b id="iWind">--</b></div>
+<div class="mini"><span>💧 Water Level</span><b id="iWater">--</b></div>
+<div class="mini"><span>☁️ Weather</span><b id="iWeather">--</b></div>
+<div class="mini"><span>📊 Risk Score</span><b id="iScore">--</b></div>
+<div class="mini"><span>📡 Sensor</span><b>DEMO</b></div>
+<div class="mini"><span>🕐 Updated</span><b id="iUpdated">--</b></div>
 </div>
 </div></section>
 
-<section class="live"><div class="title"><h2>Selected Location Weather</h2><p>Current weather is requested for the selected sub-district. Values are not flood warnings.</p></div>
-<div class="box live-row"><div class="live-card">Weather condition<b id="wCondition">--</b><span>Current</span></div><div class="live-card">Humidity<b id="wHumidity">--</b><span>Relative humidity</span></div></div></section>
-
-<section id="prediction"><div class="title"><h2>HydroGuard Risk Engine</h2><p>Transparent demonstration logic; this is not a trained ML model yet.</p></div>
-<div class="box predict"><div class="row">
+<section class="pred" id="prediction"><div class="title"><h2>Flood Risk Prediction</h2><p>Demo risk engine for testing the dashboard.</p></div>
+<div class="box form"><div class="row">
 <div class="field"><label>Water Level (m)</label><input id="pWater" type="number" min="0" step=".1" placeholder="Example 4.5"></div>
 <div class="field"><label>Rainfall (mm)</label><input id="pRain" type="number" min="0" step="1" placeholder="Example 80"></div>
 </div>
 <div class="field"><label>Location Type</label><select id="pType"><option>River Area</option><option>Coastal Area</option><option>Urban Area</option><option>Low Lying Area</option></select></div>
-<button class="action" onclick="predict()">🔍 Analyse Flood Risk</button><div id="result" class="result"></div></div></section>
+<button class="btn primary" style="width:100%" onclick="predict()">🔍 Analyse Flood Risk</button>
+<div id="result" class="result"></div></div></section>
 
-<section><div class="title"><h2>Water-Level Trend</h2><p>Estimated demonstration history for the selected location.</p></div><div class="box"><div id="chart" class="chart"></div></div></section>
+<section><div class="title"><h2>Water-Level Trend</h2><p>Generated demonstration history for the selected location.</p></div>
+<div class="box"><div id="trend" class="trend"></div></div></section>
 
-<section class="about" id="about"><h2>About HydroGuard V3</h2><p>HydroGuard is a student-developed flood early-warning concept. Administrative names come from an LGD-derived directory; weather is requested live where possible; estimated flood values remain clearly labelled until actual verified sensors and a trained prediction model are connected.</p></section>
-<footer>© 2026 HydroGuard • V3 Demonstration • Estimated values are not official emergency warnings.</footer>
+<section class="about" id="about"><h2>About HydroGuard V3</h2><p>HydroGuard is a student-developed flood early-warning concept with interactive geographical & safety map integration.</p></section>
+<footer>© 2026 HydroGuard • V3 Demonstration</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-const DATA_URL="https://gist.githubusercontent.com/planemad/b2195c7feb506f8436659f36da1e58af/raw/india-subdistricts-lgd.csv";
-let rows=[], currentRows=[], stateMap={};
+const CSV_URL="https://gist.githubusercontent.com/planemad/b2195c7feb506f8436659f36da1e58af/raw/india-subdistricts-lgd.csv";
+let rows=[],states={},currentRows=[];
+let map, currentMarker;
 
-function csvLine(line){let out=[],v="",q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c=='"'){if(q&&line[i+1]=='"'){v+='"';i++;}else q=!q}else if(c===','&&!q){out.push(v);v=""}else v+=c}out.push(v);return out}
-function parseCSV(t){const lines=t.split(/\r?\n/).filter(x=>x.trim());if(!lines.length)return[];const h=csvLine(lines[0]).map(x=>x.trim());return lines.slice(1).map(line=>{const c=csvLine(line),o={};h.forEach((k,i)=>o[k]=(c[i]||"").trim());return o})}
-function unique(a){return [...new Set(a)].filter(Boolean).sort((a,b)=>a.localeCompare(b))}
-function fillSelect(el,arr){el.innerHTML="";unique(arr).forEach(x=>{const o=document.createElement("option");o.value=x;o.textContent=x;el.appendChild(o)})}
-function build(){
-stateMap={};rows.forEach(r=>{const s=r.state,d=r.district,sub=r.sub;if(!s||!d||!sub)return;(stateMap[s]??=[]).push(r)});
-fillSelect(document.getElementById("state"),Object.keys(stateMap));fillDistricts()
+// Initialize Map
+function initMap(){
+  map = L.map('map').setView([20.5937, 78.9629], 5); // India Center
+  
+  // Geographical Tile Layer (OpenStreetMap)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
 }
-function fillDistricts(){const s=state.value;fillSelect(district,(stateMap[s]||[]).map(x=>x.district));fillSubs()}
-function fillSubs(){const s=state.value,d=district.value;currentRows=rows.filter(x=>x.state===s&&x.district===d);renderSubs(currentRows)}
-function renderSubs(list){fillSelect(subdistrict,list.map(x=>x.sub));updateLocation()}
-function filterSubs(){const q=search.value.toLowerCase().trim();renderSubs(currentRows.filter(x=>x.sub.toLowerCase().includes(q)))}
 
-function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
-function fallbackProfile(key){
-const h=hash(key),r=(h%700)/10,water=1.2+(h%430)/100,wind=6+(h%160)/10,temp=18+(h%170)/10;
-const score=Math.min(100,Math.round(water*8+r*.42+(h%14))),risk=score>=70?"HIGH":score>=40?"MODERATE":"LOW";
-return {temp:temp.toFixed(1),rain:r.toFixed(1),wind:wind.toFixed(1),water:water.toFixed(2),score,risk,weather:r>70?"Rainy":r>30?"Partly Cloudy":"Mostly Clear",humidity:55+(h%35)}
+function toggleMenu(){document.getElementById("nav").classList.toggle("active")}
+function clean(s){return (s||"").trim().replace(/\s+/g," ")}
+function parseCSV(text){
+const lines=text.split(/\r?\n/); if(!lines.length)return[];
+const out=[]; let headers=splitCSV(lines[0]);
+for(let i=1;i<lines.length;i++){if(!lines[i].trim())continue;let c=splitCSV(lines[i]);if(c.length<8)continue;let o={};headers.forEach((h,j)=>o[clean(h)]=clean(c[j]));out.push(o)}
+return out;
 }
-function riskClass(r){return r==="HIGH"?"danger":r==="MODERATE"?"watch":"safe"}
-function setData(p,source){
-const risk=p.risk,cl=riskClass(risk);
-locRisk.textContent="● "+risk+" RISK";locRisk.className="risk "+cl;
-dashRisk.textContent="● "+risk+" RISK";dashRisk.className="risk "+cl;
-iTemp.textContent=p.temp+" °C";iRain.textContent=p.rain+" mm";iWind.textContent=p.wind+" km/h";iWater.textContent=p.water+" m";
-iWeather.textContent=p.weather;iScore.textContent=p.score+"/100";iUpdated.textContent=new Date().toLocaleTimeString();
-dTemp.textContent=p.temp+" °C";dRain.textContent=p.rain+" mm";dWind.textContent=p.wind+" km/h";dWater.textContent=p.water+" m";dScore.textContent=p.score+"/100";
-dStatus.textContent=risk==="HIGH"?"ALERT":risk==="MODERATE"?"WATCH":"SAFE";updated.textContent=source+" • "+new Date().toLocaleTimeString();
-wCondition.textContent=p.weather;wHumidity.textContent=p.humidity+"%";drawTrend(p.water,p.rain)
+function splitCSV(line){let a=[],v="",q=false;for(let i=0;i<line.length;i++){let ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){v+='"';i++}else q=!q}else if(ch===","&&!q){a.push(v);v=""}else v+=ch}a.push(v);return a}
+
+function fillStates(){
+const s=document.getElementById("state");s.innerHTML="";
+Object.keys(states).sort().forEach(x=>{let o=document.createElement("option");o.value=x;o.textContent=x;s.appendChild(o)});
+fillDistricts();
 }
-async function geocodeAndWeather(name,districtName,stateName){
-try{
-const q=encodeURIComponent(name+", "+districtName+", "+stateName+", India");
-const g=await fetch("https://geocoding-api.open-meteo.com/v1/search?name="+encodeURIComponent(name)+"&count=10&language=en&format=json");
-if(!g.ok)throw Error();
-const gd=await g.json();let place=(gd.results||[]).find(x=>x.country_code==="IN"&&(x.admin1||"").toLowerCase().includes(stateName.toLowerCase().split(" ")[0]))||gd.results?.[0];
-if(!place)throw Error();
-const u="https://api.open-meteo.com/v1/forecast?latitude="+place.latitude+"&longitude="+place.longitude+"&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&timezone=auto";
-const wr=await fetch(u);if(!wr.ok)throw Error();const c=(await wr.json()).current;
-const base=fallbackProfile(stateName+"|"+districtName+"|"+name);
-const rain=Number(c.precipitation)||0,water=Number(base.water),score=Math.min(100,Math.round(water*8+rain*.42));
-const risk=score>=70?"HIGH":score>=40?"MODERATE":"LOW";
-const wt=c.weather_code===0?"Clear":c.weather_code<=3?"Cloudy":c.weather_code<=48?"Fog":c.weather_code<=67?"Rain":c.weather_code<=82?"Rain Showers":"Storm";
-setData({temp:Number(c.temperature_2m).toFixed(1),rain:rain.toFixed(1),wind:Number(c.wind_speed_10m).toFixed(1),water:base.water,score,risk,weather:wt,humidity:Math.round(c.relative_humidity_2m)},"LIVE WEATHER");
-directoryStatus.textContent="🟢 Live weather loaded for the selected location. Water level remains estimated.";
-}catch(e){
-setData(fallbackProfile(state.value+"|"+district.value+"|"+subdistrict.value),"ESTIMATED");
-directoryStatus.textContent="🟡 Live weather lookup failed for this location, so a clearly labelled regional estimate is displayed.";
-}}
+function fillDistricts(){
+const s=document.getElementById("state").value,d=document.getElementById("district");d.innerHTML="";
+const set=new Set((states[s]||[]).map(x=>x.district));
+[...set].sort().forEach(x=>{let o=document.createElement("option");o.value=x;o.textContent=x;d.appendChild(o)});
+fillSubdistricts();
+}
+function fillSubdistricts(){
+const s=document.getElementById("state").value,d=document.getElementById("district").value;
+currentRows=rows.filter(x=>x.state===s&&x.district===d);
+renderSubdistricts(currentRows);
+}
+function renderSubdistricts(list){
+const el=document.getElementById("subdistrict");el.innerHTML="";
+list.map(x=>x.subdistrict).filter(Boolean).sort((a,b)=>a.localeCompare(b)).forEach(x=>{let o=document.createElement("option");o.value=x;o.textContent=x;el.appendChild(o)});
+updateLocation();
+}
+function filterSubdistricts(){
+const q=document.getElementById("search").value.toLowerCase().trim();
+renderSubdistricts(currentRows.filter(x=>x.subdistrict.toLowerCase().includes(q)));
+}
+function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0)}
+
+function profile(key){
+const h=hash(key),season=(new Date().getMonth()+1);
+let temp=20+(h%150)/10 + (season>=4&&season<=6?5:0);
+let rain=(h%950)/10;
+let wind=5+(h%300)/10;
+let water=1+(h%520)/100;
+let score=Math.min(100,Math.round(water*9+rain*.45+(h%20)));
+let risk=score>=70?"HIGH":score>=40?"MODERATE":"LOW";
+
+// Approximate Lat/Lng generator for demo mapping
+let lat = 8 + (h % 2800)/100;
+let lng = 68 + (h % 2800)/100;
+
+return {temp:temp.toFixed(1),rain:rain.toFixed(1),wind:wind.toFixed(1),water:water.toFixed(2),score,risk,weather:rain>80?"Heavy Rain":rain>35?"Rainy":"Partly Cloudy", lat, lng};
+}
+
+function cls(r){return r==="HIGH"?"danger":r==="MODERATE"?"watch":"safe"}
+
 function updateLocation(){
-const s=state.value,d=district.value,sub=subdistrict.value;if(!s||!d||!sub)return;
-locName.textContent=sub;locPath.textContent=s+" → "+d+" → "+sub;dashPath.textContent=locPath.textContent;
-geocodeAndWeather(sub,d,s)
+const s=document.getElementById("state").value,d=document.getElementById("district").value,sub=document.getElementById("subdistrict").value;
+if(!s||!d||!sub)return;
+const p=profile(s+"|"+d+"|"+sub),path=s+" → "+d+" → "+sub;
+
+document.getElementById("locName").textContent=sub;
+document.getElementById("locPath").textContent=path;
+document.getElementById("locRisk").textContent="● "+p.risk+" RISK";document.getElementById("locRisk").className="risk "+cls(p.risk);
+document.getElementById("iTemp").textContent=p.temp+" °C";document.getElementById("iRain").textContent=p.rain+" mm";
+document.getElementById("iWind").textContent=p.wind+" km/h";document.getElementById("iWater").textContent=p.water+" m";
+document.getElementById("iWeather").textContent=p.weather;document.getElementById("iScore").textContent=p.score+"/100";
+document.getElementById("iUpdated").textContent=new Date().toLocaleTimeString();
+document.getElementById("dashPath").textContent=path;
+document.getElementById("dTemp").textContent=p.temp+" °C";document.getElementById("dRain").textContent=p.rain+" mm";
+document.getElementById("dWind").textContent=p.wind+" km/h";document.getElementById("dWater").textContent=p.water+" m";
+document.getElementById("dScore").textContent=p.score+"/100";document.getElementById("dStatus").textContent=p.risk==="HIGH"?"ALERT":p.risk==="MODERATE"?"WATCH":"SAFE";
+document.getElementById("dRisk").textContent="● "+p.risk+" RISK";document.getElementById("dRisk").className="risk "+cls(p.risk);
+document.getElementById("updated").textContent="Updated "+new Date().toLocaleTimeString();
+
+drawTrend(p.water,p.rain);
+updateMap(sub, path, p);
 }
-function drawTrend(w,r){chart.innerHTML="";const base=Math.min(92,Math.max(18,Number(w)*13+Number(r)/5));for(let i=0;i<14;i++){const b=document.createElement("div");b.className="bar";b.style.height=Math.min(96,Math.max(12,base+Math.sin(i*1.4)*9+i*.6))+"%";chart.appendChild(b)}}
+
+// Map color update function based on Safety Risk
+function updateMap(sub, path, p){
+  if(!map) return;
+  if(currentMarker) map.removeLayer(currentMarker);
+
+  let color = p.risk === "HIGH" ? "#b42323" : p.risk === "MODERATE" ? "#9a6a00" : "#168a52";
+
+  // Position map & draw risk marker
+  map.setView([p.lat, p.lng], 9);
+  currentMarker = L.circleMarker([p.lat, p.lng], {
+      color: "#ffffff",
+      fillColor: color,
+      fillOpacity: 0.85,
+      radius: 14,
+      weight: 3
+  }).addTo(map);
+
+  currentMarker.bindPopup(`
+      <div style="font-family:sans-serif;">
+        <h4 style="margin:0 0 5px; color:#073b5c;">${sub}</h4>
+        <small>${path}</small><br><br>
+        <b>Safety Risk:</b> <span style="color:${color}; font-weight:800;">${p.risk} (${p.score}/100)</span><br>
+        <b>Rainfall:</b> ${p.rain} mm<br>
+        <b>Water Level:</b> ${p.water} m
+      </div>
+  `).openPopup();
+}
+
+function drawTrend(w,r){const el=document.getElementById("trend");el.innerHTML="";let base=Math.min(92,Math.max(15,w*13+r/4));for(let i=0;i<14;i++){let b=document.createElement("div");b.className="bar";b.style.height=Math.min(96,Math.max(12,base+Math.sin(i*1.7)*10+i*.8))+"%";el.appendChild(b)}}
+
 function predict(){
-const w=Number(pWater.value),r=Number(pRain.value);if(!Number.isFinite(w)||!Number.isFinite(r)||w<0||r<0){result.style.display="block";result.className="result red";result.textContent="⚠️ Enter valid values.";return}
-const risk=w>=6||r>=120?"HIGH":w>=4||r>=60?"MODERATE":"LOW";result.style.display="block";result.className="result "+(risk==="HIGH"?"red":risk==="MODERATE"?"yellow":"green");result.innerHTML="<b>"+risk+" FLOOD RISK</b><br><br>"+(risk==="HIGH"?"High-risk demonstration conditions detected.":risk==="MODERATE"?"Closer monitoring is recommended.":"Lower demonstration risk from these inputs.");dashRisk.textContent="● "+risk+" RISK";dashRisk.className="risk "+riskClass(risk);dStatus.textContent=risk==="HIGH"?"ALERT":risk==="MODERATE"?"WATCH":"SAFE"
+const w=parseFloat(document.getElementById("pWater").value),r=parseFloat(document.getElementById("pRain").value),box=document.getElementById("result");
+if(isNaN(w)||isNaN(r)||w<0||r<0){box.style.display="block";box.className="result red";box.textContent="⚠️ Enter valid non-negative values.";return}
+const risk=w>=6||r>=120?"HIGH":w>=4||r>=60?"MODERATE":"LOW";box.style.display="block";box.className="result "+(risk==="HIGH"?"red":risk==="MODERATE"?"yellow":"green");
+box.innerHTML="<b>"+risk+" FLOOD RISK</b><br><br>"+(risk==="HIGH"?"High-risk demonstration conditions detected. Follow official local authorities.":risk==="MODERATE"?"Closer monitoring is recommended for this demonstration scenario.":"Lower demonstration risk based on the entered values.");
+document.getElementById("dWater").textContent=w.toFixed(1)+" m";document.getElementById("dRain").textContent=r+" mm";document.getElementById("dRisk").textContent="● "+risk+" RISK";document.getElementById("dRisk").className="risk "+cls(risk);
 }
-async function load(){
+
+async function loadData(){
+const status=document.getElementById("loadStatus");
 try{
-const r=await fetch(DATA_URL,{cache:"no-store"});if(!r.ok)throw Error("directory fetch failed");const text=await r.text();const parsed=parseCSV(text);
-rows=parsed.map(x=>({state:x["State Name (In English)"],district:x["District Name (In English)"],sub:x["Sub-District Name"]})).filter(x=>x.state&&x.district&&x.sub);
-build();directoryStatus.textContent="🟢 India directory loaded: "+rows.length.toLocaleString()+" sub-district entries from an LGD-derived export.";
+const res=await fetch(CSV_URL,{cache:"no-store"});if(!res.ok)throw Error("CSV fetch failed");
+const text=await res.text();rows=parseCSV(text).map(x=>({state:clean(x["State Name (In English)"]),district:clean(x["District Name (In English)"]),subdistrict:clean(x["Sub-District Name"])})).filter(x=>x.state&&x.district&&x.subdistrict);
+rows.forEach(x=>{if(!states[x.state])states[x.state]=[];states[x.state].push(x)});
+fillStates();status.textContent="🟢 Location directory loaded: "+rows.length.toLocaleString()+" sub-district entries. Data source: LGD export.";
 }catch(e){
-rows=[["GUJARAT","SURAT","Choryasi"],["GUJARAT","AHMEDABAD","Daskroi"],["GUJARAT","MEHSANA","Mehsana"],["UTTAR PRADESH","CHITRAKOOT","Karwi"],["BIHAR","PATNA","Patna"],["ASSAM","KAMRUP METROPOLITAN","Guwahati"]].map(x=>({state:x[0],district:x[1],sub:x[2]}));
-build();directoryStatus.textContent="🟡 Full directory could not be reached. Demo locations loaded; estimates still work.";
+const fallback=[
+["Gujarat","Ahmedabad","Daskroi"],["Gujarat","Surat","Choryasi"],["Gujarat","Mehsana","Mehsana"],["Gujarat","Kachchh","Abdasa"],
+["Uttar Pradesh","Chitrakoot","Karwi"],["Uttar Pradesh","Varanasi","Varanasi"],["Bihar","Patna","Patna"],["Assam","Kamrup Metropolitan","Guwahati"]
+];
+rows=fallback.map(x=>({state:x[0],district:x[1],subdistrict:x[2]}));rows.forEach(x=>{if(!states[x.state])states[x.state]=[];states[x.state].push(x)});fillStates();
+status.textContent="🟡 Full directory could not be downloaded right now. Demo fallback locations loaded; approximate values still work.";
 }}
-state.addEventListener("change",fillDistricts);district.addEventListener("change",fillSubs);subdistrict.addEventListener("change",updateLocation);load();
+
+document.getElementById("state").addEventListener("change",fillDistricts);
+document.getElementById("district").addEventListener("change",fillSubdistricts);
+document.getElementById("subdistrict").addEventListener("change",updateLocation);
+
+window.onload = function() {
+    initMap();
+    loadData();
+};
 </script>
 </body>
 </html>

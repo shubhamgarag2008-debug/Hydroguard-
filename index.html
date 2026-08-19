@@ -89,6 +89,9 @@ section{padding:58px 7%}.title{text-align:center;margin-bottom:30px}.title h2{fo
 <div class="map-toolbar">
 <button id="geoBtn" class="map-btn active" onclick="setMapMode('geo')">🌍 Geographical</button>
 <button id="polBtn" class="map-btn" onclick="setMapMode('political')">🏛️ Political</button>
+<button id="satBtn" class="map-btn" onclick="setBaseMap('satellite')">🛰️ Satellite</button>
+<button id="terrainBtn" class="map-btn" onclick="setBaseMap('terrain')">⛰️ Terrain</button>
+<button id="hgBtn" class="map-btn active" onclick="setHydroGuardMap()">🛡️ HydroGuard Risk</button>
 <button class="map-btn" onclick="focusSelectedLocation()">📍 Selected Location</button>
 <button class="map-btn" onclick="indiaView()">🇮🇳 India View</button>
 </div>
@@ -121,6 +124,7 @@ section{padding:58px 7%}.title{text-align:center;margin-bottom:30px}.title h2{fo
 let hydroMap, stateLayer, districtLayer, subdistrictLayer, selectedMarker, boundaryData={state:null,district:null,subdistrict:null};
 const geoTiles=L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"});
 const satelliteTiles=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Tiles © Esri"});
+const terrainTiles=L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",{maxZoom:17,attribution:"© OpenTopoMap contributors"});
 
 function initHydroMap(){
  hydroMap=L.map("hydroMap").setView([22.5,79],5);
@@ -188,18 +192,30 @@ function showZoomLabels(){
  if(districtLayer)districtLayer.eachLayer(l=>{const tip=l.getTooltip();if(tip)tip.options.permanent=z>=6&&z<9;});
  if(subdistrictLayer)subdistrictLayer.eachLayer(l=>{const tip=l.getTooltip();if(tip)tip.options.permanent=z>=9;});
 }
+function clearBaseMaps(){[geoTiles,satelliteTiles,terrainTiles].forEach(x=>{if(hydroMap.hasLayer(x))hydroMap.removeLayer(x)})}
+function setBaseMap(mode){
+ clearBaseMaps();
+ (mode==="satellite"?satelliteTiles:mode==="terrain"?terrainTiles:geoTiles).addTo(hydroMap);
+ document.getElementById("satBtn").classList.toggle("active",mode==="satellite");
+ document.getElementById("terrainBtn").classList.toggle("active",mode==="terrain");
+}
+function setHydroGuardMap(){
+ setBaseMap("geo");
+ document.getElementById("hgBtn").classList.add("active");
+ document.getElementById("polBtn").classList.add("active");
+ if(stateLayer&&!hydroMap.hasLayer(stateLayer))stateLayer.addTo(hydroMap);
+ showZoomLabels();
+}
 function setMapMode(mode){
  document.getElementById("geoBtn").classList.toggle("active",mode==="geo");
  document.getElementById("polBtn").classList.toggle("active",mode==="political");
+ document.getElementById("hgBtn").classList.toggle("active",mode==="political");
  if(mode==="geo"){
-   if(!hydroMap.hasLayer(geoTiles))geoTiles.addTo(hydroMap);
-   if(hydroMap.hasLayer(stateLayer))hydroMap.removeLayer(stateLayer);
-   if(hydroMap.hasLayer(districtLayer))hydroMap.removeLayer(districtLayer);
-   if(hydroMap.hasLayer(subdistrictLayer))hydroMap.removeLayer(subdistrictLayer);
-   indiaView();
-   return;
+  setBaseMap("geo");
+  [stateLayer,districtLayer,subdistrictLayer].forEach(x=>{if(x&&hydroMap.hasLayer(x))hydroMap.removeLayer(x)});
+  indiaView(); return;
  }
- if(!hydroMap.hasLayer(geoTiles))geoTiles.addTo(hydroMap);
+ setBaseMap("geo");
  if(stateLayer&&!hydroMap.hasLayer(stateLayer))stateLayer.addTo(hydroMap);
  showZoomLabels();
 }
@@ -239,7 +255,7 @@ function renderSubs(list){fillSelect(subdistrict,list.map(x=>x.sub));updateLocat
 function filterSubs(){const q=search.value.toLowerCase().trim();renderSubs(currentRows.filter(x=>x.sub.toLowerCase().includes(q)))}
 
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
-function fallbackProfile(key){
+ function fallbackProfile(key){
 const h=hash(key),r=(h%700)/10,water=1.2+(h%430)/100,wind=6+(h%160)/10,temp=18+(h%170)/10;
 const score=Math.min(100,Math.round(water*8+r*.42+(h%14))),risk=score>=70?"HIGH":score>=40?"MODERATE":"LOW";
 return {temp:temp.toFixed(1),rain:r.toFixed(1),wind:wind.toFixed(1),water:water.toFixed(2),score,risk,weather:r>70?"Rainy":r>30?"Partly Cloudy":"Mostly Clear",humidity:55+(h%35)}
@@ -251,4 +267,49 @@ locRisk.textContent="● "+risk+" RISK";locRisk.className="risk "+cl;
 dashRisk.textContent="● "+risk+" RISK";dashRisk.className="risk "+cl;
 iTemp.textContent=p.temp+" °C";iRain.textContent=p.rain+" mm";iWind.textContent=p.wind+" km/h";iWater.textContent=p.water+" m";
 iWeather.textContent=p.weather;iScore.textContent=p.score+"/100";iUpdated.textContent=new Date().toLocaleTimeString();
-dTemp.textContent=p.temp+" °C";dRain.textContent=p.
+dTemp.textContent=p.temp+" °C";dRain.textContent=p.rain+" mm";dWind.textContent=p.wind+" km/h";dWater.textContent=p.water+" m";dScore.textContent=p.score+"/100";
+dStatus.textContent=risk==="HIGH"?"ALERT":risk==="MODERATE"?"WATCH":"SAFE";updated.textContent=source+" • "+new Date().toLocaleTimeString();
+wCondition.textContent=p.weather;wHumidity.textContent=p.humidity+"%";drawTrend(p.water,p.rain)
+}
+async function geocodeAndWeather(name,districtName,stateName){
+try{
+const q=encodeURIComponent(name+", "+districtName+", "+stateName+", India");
+const g=await fetch("https://geocoding-api.open-meteo.com/v1/search?name="+encodeURIComponent(name)+"&count=10&language=en&format=json");
+if(!g.ok)throw Error();
+const gd=await g.json();let place=(gd.results||[]).find(x=>x.country_code==="IN"&&(x.admin1||"").toLowerCase().includes(stateName.toLowerCase().split(" ")[0]))||gd.results?.[0];
+if(!place)throw Error();
+const u="https://api.open-meteo.com/v1/forecast?latitude="+place.latitude+"&longitude="+place.longitude+"&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&timezone=auto";
+const wr=await fetch(u);if(!wr.ok)throw Error();const c=(await wr.json()).current;
+const base=fallbackProfile(stateName+"|"+districtName+"|"+name);
+const rain=Number(c.precipitation)||0,water=Number(base.water),score=Math.min(100,Math.round(water*8+rain*.42));
+const risk=score>=70?"HIGH":score>=40?"MODERATE":"LOW";
+const wt=c.weather_code===0?"Clear":c.weather_code<=3?"Cloudy":c.weather_code<=48?"Fog":c.weather_code<=67?"Rain":c.weather_code<=82?"Rain Showers":"Storm";
+setData({temp:Number(c.temperature_2m).toFixed(1),rain:rain.toFixed(1),wind:Number(c.wind_speed_10m).toFixed(1),water:base.water,score,risk,weather:wt,humidity:Math.round(c.relative_humidity_2m)},"LIVE WEATHER");
+directoryStatus.textContent="🟢 Live weather loaded for the selected location. Water level remains estimated.";
+}catch(e){
+setData(fallbackProfile(state.value+"|"+district.value+"|"+subdistrict.value),"ESTIMATED");
+directoryStatus.textContent="🟡 Live weather lookup failed for this location, so a clearly labelled regional estimate is displayed.";
+}}
+function updateLocation(){
+const s=state.value,d=district.value,sub=subdistrict.value;if(!s||!d||!sub)return;
+locName.textContent=sub;locPath.textContent=s+" → "+d+" → "+sub;dashPath.textContent=locPath.textContent;
+geocodeAndWeather(sub,d,s)
+}
+function drawTrend(w,r){chart.innerHTML="";const base=Math.min(92,Math.max(18,Number(w)*13+Number(r)/5));for(let i=0;i<14;i++){const b=document.createElement("div");b.className="bar";b.style.height=Math.min(96,Math.max(12,base+Math.sin(i*1.4)*9+i*.6))+"%";chart.appendChild(b)}}
+function predict(){
+const w=Number(pWater.value),r=Number(pRain.value);if(!Number.isFinite(w)||!Number.isFinite(r)||w<0||r<0){result.style.display="block";result.className="result red";result.textContent="⚠️ Enter valid values.";return}
+const risk=w>=6||r>=120?"HIGH":w>=4||r>=60?"MODERATE":"LOW";result.style.display="block";result.className="result "+(risk==="HIGH"?"red":risk==="MODERATE"?"yellow":"green");result.innerHTML="<b>"+risk+" FLOOD RISK</b><br><br>"+(risk==="HIGH"?"High-risk demonstration conditions detected.":risk==="MODERATE"?"Closer monitoring is recommended.":"Lower demonstration risk from these inputs.");dashRisk.textContent="● "+risk+" RISK";dashRisk.className="risk "+riskClass(risk);dStatus.textContent=risk==="HIGH"?"ALERT":risk==="MODERATE"?"WATCH":"SAFE"
+}
+async function load(){
+try{
+const r=await fetch(DATA_URL,{cache:"no-store"});if(!r.ok)throw Error("directory fetch failed");const text=await r.text();const parsed=parseCSV(text);
+rows=parsed.map(x=>({state:x["State Name (In English)"],district:x["District Name (In English)"],sub:x["Sub-District Name"]})).filter(x=>x.state&&x.district&&x.sub);
+build();directoryStatus.textContent="🟢 India directory loaded: "+rows.length.toLocaleString()+" sub-district entries from an LGD-derived export.";
+}catch(e){
+rows=[["GUJARAT","SURAT","Choryasi"],["GUJARAT","AHMEDABAD","Daskroi"],["GUJARAT","MEHSANA","Mehsana"],["UTTAR PRADESH","CHITRAKOOT","Karwi"],["BIHAR","PATNA","Patna"],["ASSAM","KAMRUP METROPOLITAN","Guwahati"]].map(x=>({state:x[0],district:x[1],sub:x[2]}));
+build();directoryStatus.textContent="🟡 Full directory could not be reached. Demo locations loaded; estimates still work.";
+}}
+state.addEventListener("change",fillDistricts);district.addEventListener("change",fillSubs);subdistrict.addEventListener("change",updateLocation);load();
+</script>
+</body>
+</html>
